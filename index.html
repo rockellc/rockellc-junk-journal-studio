@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Junk Journal Prompt Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Sacramento&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --rose:#c9627a; --rose-lt:#f0c4ce; --rose-bg:#fff0f3;
+  --gold:#b89650; --gold-bg:#fdf8ee;
+  --ink:#2a2020; --ink-mid:#5a4040; --ink-lt:#8a6868;
+  --white:#ffffff; --off-white:#fafafa; --border:#e8e0d8;
+  --green:#2e7d32;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--off-white);font-family:'Lato',sans-serif;color:var(--ink);min-height:100vh;}
+
+/* ── TOP GOLD BAR ── */
+.top-bar{height:4px;background:linear-gradient(90deg,var(--rose) 0%,var(--gold) 50%,var(--rose) 100%);}
+
+/* ── NAV ── */
+.nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;}
+.nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0;min-height:48px;}
+.nav-brand{font-family:'Sacramento',cursive;font-size:1.2rem;color:var(--rose);text-decoration:none;white-space:nowrap;}
+.nav-links{display:flex;align-items:center;flex-wrap:wrap;gap:4px;}
+.nav-link{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:6px;text-decoration:none;font-size:0.78rem;font-weight:700;color:var(--ink-mid);transition:all 0.18s;letter-spacing:0.02em;white-space:nowrap;}
+.nav-link:hover{background:var(--rose-bg);color:var(--rose);}
+.nav-link.tiktok:hover{background:#f0f0ff;color:#5a5aff;}
+.nav-link.youtube:hover{background:#fff0f0;color:#cc0000;}
+.nav-link svg{width:14px;height:14px;flex-shrink:0;}
+.nav-divider{width:1px;height:16px;background:var(--border);margin:0 2px;}
+
+/* ── CONTAINER ── */
+.container{max-width:900px;margin:0 auto;padding:0 20px 60px;}
+
+/* ── HEADER ── */
+.header{text-align:center;padding:40px 20px 24px;}
+.header-eyebrow{font-family:'Sacramento',cursive;font-size:1.3rem;color:var(--rose);margin-bottom:4px;}
+.header h1{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4.5vw,2.9rem);font-weight:700;color:var(--ink);line-height:1.15;margin-bottom:10px;}
+.header h1 em{color:var(--rose);font-style:italic;}
+.header-sub{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--ink-lt);font-style:italic;}
+.divider{display:flex;align-items:center;gap:14px;max-width:360px;margin:16px auto;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;border-top:1px solid var(--gold);opacity:0.35;}
+.divider span{color:var(--gold);}
+
+
+
+/* ── ACCORDION HOW TO USE ── */
+.accordion{background:var(--white);border:1px solid var(--border);border-left:4px solid var(--rose);border-radius:12px;margin-bottom:18px;overflow:hidden;}
+.accordion-toggle{width:100%;background:none;border:none;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;text-align:left;transition:background 0.18s;}
+.accordion-toggle:hover{background:var(--rose-bg);}
+.accordion-toggle-left{display:flex;align-items:center;gap:10px;}
+.accordion-title{font-family:'Playfair Display',serif;font-size:0.82rem;font-weight:700;color:var(--rose);text-transform:uppercase;letter-spacing:0.1em;}
+.accordion-sub{font-family:'Cormorant Garamond',serif;font-size:0.92rem;color:var(--ink-lt);font-style:italic;}
+.accordion-icon{font-size:1rem;color:var(--rose);transition:transform 0.3s;flex-shrink:0;}
+.accordion-icon.open{transform:rotate(180deg);}
+.accordion-body{display:none;padding:0 22px 20px;}
+.accordion-body.open{display:block;}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:4px;}
+.step{display:flex;align-items:flex-start;gap:10px;}
+.step-num{width:24px;height:24px;background:var(--rose);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:700;flex-shrink:0;margin-top:2px;}
+.step p{font-family:'Cormorant Garamond',serif;font-size:0.97rem;color:var(--ink-mid);line-height:1.5;}
+
+/* ── CARD ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:24px 28px;margin-bottom:14px;}
+.card-title{font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:8px;font-family:'Lato',sans-serif;}
+.badge{background:var(--rose-bg);color:var(--rose);border:1px solid var(--rose-lt);border-radius:20px;padding:2px 9px;font-size:0.66rem;font-weight:700;letter-spacing:0.04em;}
+.badge.gold-badge{background:var(--gold-bg);color:var(--gold);border-color:rgba(184,150,80,0.3);}
+
+/* ── GRIDS ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+/* ── FIELDS ── */
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:0.76rem;font-weight:700;color:var(--ink-mid);text-transform:uppercase;letter-spacing:0.06em;}
+.field .hint{font-size:0.71rem;color:var(--ink-lt);font-style:italic;}
+.field select{
+  appearance:none;
+  background:var(--off-white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23b89650' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center;
+  border:1.5px solid var(--border);border-radius:8px;padding:9px 32px 9px 12px;
+  font-family:'Lato',sans-serif;font-size:0.87rem;color:var(--ink);cursor:pointer;width:100%;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.field select:focus{outline:none;border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,98,122,0.1);}
+.field select:hover{border-color:#ccc;}
+
+/* ── CHIPS ── */
+.chip-note{font-size:0.72rem;color:var(--ink-lt);font-style:italic;margin-bottom:10px;}
+.chips{display:flex;flex-wrap:wrap;gap:7px;}
+.chip{padding:6px 14px;border:1.5px solid var(--border);border-radius:30px;font-size:0.81rem;color:var(--ink-mid);cursor:pointer;transition:all 0.18s;background:var(--white);user-select:none;font-family:'Lato',sans-serif;}
+.chip:hover{border-color:var(--rose-lt);background:var(--rose-bg);}
+.chip.active{background:var(--rose);border-color:var(--rose);color:white;font-weight:700;}
+
+/* ── GENERATE ── */
+.btn-generate{width:100%;padding:15px 28px;background:var(--rose);color:white;border:none;border-radius:11px;font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:600;letter-spacing:0.04em;cursor:pointer;transition:background 0.2s,transform 0.15s,box-shadow 0.2s;box-shadow:0 3px 14px rgba(201,98,122,0.25);margin-top:18px;}
+.btn-generate:hover{background:#b8556d;transform:translateY(-1px);box-shadow:0 5px 20px rgba(201,98,122,0.35);}
+.btn-generate:active{transform:translateY(0);}
+.btn-generate:disabled{background:#ccc;box-shadow:none;cursor:not-allowed;transform:none;}
+
+/* ── LOADING ── */
+.loading-area{display:none;text-align:center;padding:40px 20px;}
+.loading-area.visible{display:block;}
+.dots{display:flex;justify-content:center;gap:7px;margin-bottom:14px;}
+.dot{width:9px;height:9px;border-radius:50%;animation:pulse 1.4s infinite ease-in-out;}
+.dot:nth-child(1){background:var(--rose);}
+.dot:nth-child(2){background:var(--gold);animation-delay:.18s;}
+.dot:nth-child(3){background:var(--rose-lt);animation-delay:.36s;}
+@keyframes pulse{0%,80%,100%{transform:scale(.55);opacity:.45;}40%{transform:scale(1);opacity:1;}}
+.loading-text{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--ink-lt);font-style:italic;}
+
+/* ── ERROR ── */
+.error-box{display:none;background:#fff5f5;border:1px solid #f5b8b8;border-radius:10px;padding:14px 18px;color:#9a4444;font-size:0.88rem;margin-bottom:16px;}
+.error-box.visible{display:block;}
+
+/* ── OUTPUT ── */
+.output-area{display:none;}
+.output-area.visible{display:block;animation:fadeUp 0.4s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+.kit-bar{background:var(--white);border:1px solid var(--border);border-radius:11px;padding:14px 20px;margin-bottom:12px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.kit-bar-info{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--ink-mid);line-height:1.7;}
+.kit-bar-info strong{color:var(--ink);}
+.kit-tags{display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+.kit-tag{border-radius:20px;padding:4px 11px;font-size:0.74rem;font-weight:700;letter-spacing:0.04em;font-family:'Lato',sans-serif;white-space:nowrap;}
+.kit-tag.rose{background:var(--rose-bg);color:var(--rose);border:1px solid var(--rose-lt);}
+.kit-tag.gold{background:var(--gold-bg);color:var(--gold);border:1px solid rgba(184,150,80,0.3);}
+
+.prompt-result{background:var(--white);border:1px solid var(--border);border-radius:13px;padding:24px 26px;margin-bottom:14px;position:relative;}
+.prompt-result::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(to bottom,var(--rose),var(--gold));border-radius:3px 0 0 3px;}
+.result-type{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.14em;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.result-type::before{content:'✦';}
+.prompt-text{font-family:'Cormorant Garamond',serif;font-size:1.12rem;line-height:1.82;color:var(--ink);}
+.prompt-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+
+.btn-copy{padding:9px 20px;background:var(--off-white);border:1.5px solid var(--border);border-radius:8px;font-family:'Lato',sans-serif;font-size:0.81rem;font-weight:700;color:var(--ink-mid);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px;}
+.btn-copy:hover{background:var(--rose-bg);border-color:var(--rose-lt);color:var(--rose);}
+.btn-copy.copied{background:#edfaed;border-color:#a0d4a0;color:var(--green);}
+
+.action-row{display:flex;gap:10px;flex-wrap:wrap;}
+.btn-action{flex:1;min-width:130px;padding:12px 18px;background:var(--white);border:1.5px solid var(--border);border-radius:9px;font-family:'Lato',sans-serif;font-size:0.86rem;font-weight:700;color:var(--ink-mid);cursor:pointer;transition:all 0.18s;text-align:center;}
+.btn-action:hover{background:var(--rose-bg);border-color:var(--rose-lt);color:var(--rose);}
+.btn-action.primary{background:var(--rose-bg);border-color:var(--rose-lt);color:var(--rose);}
+.btn-action.primary:hover{background:var(--rose);color:white;}
+
+/* ── FOOTER ── */
+.footer{text-align:center;padding:32px 20px 10px;border-top:1px solid var(--border);margin-top:40px;}
+.footer-links{display:flex;justify-content:center;flex-wrap:wrap;gap:16px;margin-bottom:12px;}
+.footer-link{text-decoration:none;font-size:0.82rem;color:var(--ink-lt);font-weight:700;transition:color 0.2s;}
+.footer-link:hover{color:var(--rose);}
+.footer-copy{font-family:'Cormorant Garamond',serif;font-size:0.88rem;color:var(--ink-lt);font-style:italic;}
+
+@media(max-width:620px){
+  .grid-2,.grid-3{grid-template-columns:1fr;}
+  .steps{grid-template-columns:1fr;}
+  .card{padding:18px;}
+  .nav-inner{gap:6px;padding:6px 0;}
+  .nav-link{padding:5px 8px;font-size:0.74rem;}
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="#">✦ Junk Journal Generator</a>
+    <div class="nav-links">
+      <!-- TikTok -->
+      <a class="nav-link tiktok" href="https://www.tiktok.com/@zenarastar" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.84 4.84 0 01-1.01-.07z"/></svg>
+        TikTok
+      </a>
+      <div class="nav-divider"></div>
+      <!-- YouTube -->
+      <a class="nav-link youtube" href="https://www.youtube.com/channel/UCusY57wfUQSpbnLSg7FKt1Q" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 00-2.12-2.14C19.54 3.5 12 3.5 12 3.5s-7.54 0-9.38.55A3.02 3.02 0 00.5 6.19C0 8.04 0 12 0 12s0 3.96.5 5.81a3.02 3.02 0 002.12 2.14C4.46 20.5 12 20.5 12 20.5s7.54 0 9.38-.55a3.02 3.02 0 002.12-2.14C24 15.96 24 12 24 12s0-3.96-.5-5.81zM9.75 15.5V8.5l6.25 3.5-6.25 3.5z"/></svg>
+        YouTube
+      </a>
+      <div class="nav-divider"></div>
+      <!-- PinCraft AI -->
+      <a class="nav-link" href="https://pincraftai.gumroad.com/l/pincraftai" target="_blank" rel="noopener" style="color:#e85d9a;">
+        📌 PinCraft AI
+      </a>
+      <div class="nav-divider"></div>
+      <!-- Instant Rights -->
+      <a class="nav-link" href="https://www.instantrights.com/" target="_blank" rel="noopener" style="color:var(--gold);">
+        ✦ InstantRights
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>Junk Journal<br><em>Prompt Generator</em></h1>
+    <div class="divider"><span>❀</span></div>
+    <p class="header-sub">Generate ready-to-use AI image prompts for your printable junk journal collections</p>
+  </div>
+
+
+
+  <!-- ACCORDION HOW TO USE -->
+  <div class="accordion">
+    <button class="accordion-toggle" onclick="toggleAccordion(this)">
+      <div class="accordion-toggle-left">
+        <span style="color:var(--rose);font-size:1rem;">❧</span>
+        <div>
+          <div class="accordion-title">How to Use This Generator</div>
+          <div class="accordion-sub">Click to read the quick-start guide</div>
+        </div>
+      </div>
+      <span class="accordion-icon">▼</span>
+    </button>
+    <div class="accordion-body">
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><p>Add your <strong>Anthropic API key</strong> above — get one free at console.anthropic.com</p></div>
+        <div class="step"><div class="step-num">2</div><p>Choose your <strong>theme, style, mood &amp; design settings</strong> across the sections below</p></div>
+        <div class="step"><div class="step-num">3</div><p>Select <strong>one journal element</strong> — one focused, detailed prompt is created per click</p></div>
+        <div class="step"><div class="step-num">4</div><p>Hit <strong>Copy Prompt</strong> and paste straight into Midjourney, Firefly, or DALL·E</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: THEME & STYLE -->
+  <div class="card">
+    <div class="card-title">🌸 Theme &amp; Style <span class="badge">Core Settings</span></div>
+    <div class="grid-2" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Theme</label>
+        <select id="theme">
+          <option value="random">✨ Surprise Me!</option>
+          <optgroup label="── Vintage & Antique">
+            <option>Victorian Romance</option><option>French Vintage</option><option>Shabby Chic</option>
+            <option>Rustic Farmhouse</option><option>Antique Parlor</option><option>Edwardian</option>
+            <option>Retro 1950s Kitchen</option>
+          </optgroup>
+          <optgroup label="── Nature">
+            <option>Butterfly Garden</option><option>Dragonfly & Botanicals</option><option>Bees & Honey</option>
+            <option>Woodland Animals</option><option>Wildflower Meadow</option><option>Peacock & Roses</option>
+            <option>Mushroom Forest</option>
+          </optgroup>
+          <optgroup label="── Cottagecore">
+            <option>Cottage Tea Party</option><option>Sunshine Garden</option><option>Baking & Kitchen</option>
+            <option>Garden Shed</option><option>Farmhouse Florals</option>
+          </optgroup>
+          <optgroup label="── Dark & Gothic">
+            <option>Gothic Apothecary</option><option>Haunted Mansion</option><option>Witchcore Spell Books</option>
+            <option>Dark Academia Library</option><option>Moon Magic</option>
+          </optgroup>
+          <optgroup label="── Celestial & Mystical">
+            <option>Vintage Celestial</option><option>Zodiac & Stars</option><option>Tarot & Crystal</option>
+            <option>Moon Phases</option><option>Cosmic Butterflies</option>
+          </optgroup>
+          <optgroup label="── Travel & Adventure">
+            <option>Old World Maps</option><option>Vintage Travel</option><option>Air Mail & Postcards</option>
+            <option>Parisian Explorer</option><option>Japanese Journey</option>
+          </optgroup>
+          <optgroup label="── Seasonal">
+            <option>Vintage Easter</option><option>Summer Coastal</option><option>Autumn Harvest</option>
+            <option>Victorian Christmas</option><option>Cherry Blossom Spring</option>
+          </optgroup>
+          <optgroup label="── Hobby">
+            <option>Vintage Sewing</option><option>Vintage Newspaper</option><option>Vintage Ledger</option>
+            <option>Handwriting & Typewriter</option><option>Botanical Studies</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="field">
+        <label>Art Style</label>
+        <select id="style">
+          <option value="random">✨ Surprise Me!</option>
+          <option>Vintage Watercolor</option><option>Antique Engraving</option>
+          <option>Soft Pastel Illustration</option><option>Hand-Painted Mixed Media</option>
+          <option>Aged Paper Collage</option><option>Victorian Botanical Print</option>
+          <option>Distressed Grunge Paper</option><option>Whimsical Storybook</option>
+          <option>Cottagecore Watercolor</option><option>Dark Moody Gothic</option>
+          <option>Sepia Toned Manuscript</option><option>Layered Paper Collage</option>
+          <option>Faded Ink Illustration</option><option>Dreamy Soft Focus</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Color Palette</label>
+        <select id="palette">
+          <option value="random">✨ Surprise Me!</option>
+          <option>Soft Blush & Cream</option><option>Dusty Rose & Antique Gold</option>
+          <option>Sage Green & Warm Neutrals</option><option>Mustard Yellow & Cream</option>
+          <option>Vintage Blue & Ivory</option><option>Terracotta & Burnt Orange</option>
+          <option>Lavender & Dusty Rose</option><option>Black & Ivory with Gold</option>
+          <option>Sepia Brown & Parchment</option><option>Cottagecore Pastels</option>
+          <option>Forest Greens & Earthy Brown</option><option>Muted Rainbow on Cream</option>
+          <option>Deep Teal & Antique Gold</option><option>Pink & Mint Retro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Paper Texture</label>
+        <select id="texture">
+          <option value="random">✨ Surprise Me!</option>
+          <option>Tea Stained Aged Paper</option><option>Coffee Stained Parchment</option>
+          <option>Vintage Manuscript</option><option>Crumpled Handmade Paper</option>
+          <option>Rice Paper Texture</option><option>Distressed Cardstock</option>
+          <option>Old Newspaper Print</option><option>Linen Fabric Texture</option>
+          <option>Water Damaged Paper</option><option>Antique Ledger Paper</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: MOOD & LAYOUT -->
+  <div class="card">
+    <div class="card-title">🎭 Mood &amp; Layout <span class="badge">Design Feel</span></div>
+    <div class="grid-3" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Atmosphere / Emotion</label>
+        <div class="hint">Sets the feeling of the page</div>
+        <select id="atmosphere">
+          <option value="random">✨ Surprise Me!</option>
+          <option>Romantic & Dreamy</option><option>Cozy & Nostalgic</option>
+          <option>Whimsical & Playful</option><option>Mysterious & Moody</option>
+          <option>Melancholic & Wistful</option><option>Magical & Ethereal</option>
+          <option>Rustic & Grounded</option><option>Elegant & Refined</option>
+          <option>Dark & Brooding</option><option>Light & Airy</option>
+          <option>Vintage & Sentimental</option><option>Witchy & Mystical</option>
+          <option>Peaceful & Serene</option><option>Adventurous & Bold</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Pattern &amp; Layout</label>
+        <div class="hint">How elements are arranged</div>
+        <select id="layout">
+          <option value="random">✨ Surprise Me!</option>
+          <option>Scattered Collage</option><option>Symmetrical & Centered</option>
+          <option>Corner Cluster</option><option>Border Frame</option>
+          <option>Full-Bleed Background</option><option>Diagonal Flow</option>
+          <option>Layered Ephemera</option><option>Minimal & Clean</option>
+          <option>Wreath / Circular</option><option>Top & Bottom Border</option>
+          <option>Cascading Side Cluster</option><option>Patchwork Grid</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Ephemera Density</label>
+        <div class="hint">How busy or minimal the page is</div>
+        <select id="density">
+          <option value="random">✨ Surprise Me!</option>
+          <option>Minimal — lots of white space</option>
+          <option>Moderate — balanced mix</option>
+          <option>Heavily Layered — rich & complex</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Lighting &amp; Effects</label>
+        <div class="hint">Adds depth and atmosphere</div>
+        <select id="lighting">
+          <option value="random">✨ Surprise Me!</option>
+          <option>Soft Natural Light</option><option>Warm Candlelight Glow</option>
+          <option>Dappled Sunlight</option><option>Aged & Faded — no lighting</option>
+          <option>Soft Vignette Edges</option><option>Golden Hour Warmth</option>
+          <option>Moody Dramatic Shadows</option><option>Soft Bokeh Background</option>
+          <option>Flat Lay — even lighting</option><option>Misty & Atmospheric</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Use Case</label>
+        <div class="hint">What the page will be used for</div>
+        <select id="usecase">
+          <option value="random">✨ Surprise Me!</option>
+          <option>Journaling page with blank writing space</option>
+          <option>Decorative background — no writing space</option>
+          <option>Scrapbook layout page</option>
+          <option>Photo pocket insert</option>
+          <option>Cover page or title page</option>
+          <option>Collage base layer</option>
+          <option>Bible journaling page</option>
+          <option>Planner insert page</option>
+          <option>Recipe page with blank lines</option>
+          <option>Gratitude or affirmation page</option>
+          <option>Memory keeping spread</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: PRINT SPECS -->
+  <div class="card">
+    <div class="card-title">🖨️ Print Specifications <span class="badge gold-badge">Etsy-Ready</span></div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Page Size / Format</label>
+        <div class="hint">Match to your Etsy listing format</div>
+        <select id="pagesize">
+          <option value="US Letter 8.5x11 inches">US Letter — 8.5 × 11 in</option>
+          <option value="A4 210x297mm">A4 — 210 × 297 mm</option>
+          <option value="A5 148x210mm">A5 — 148 × 210 mm</option>
+          <option value="Half Letter 5.5x8.5 inches">Half Letter — 5.5 × 8.5 in</option>
+          <option value="Square 12x12 inches">Square — 12 × 12 in</option>
+          <option value="ATC card 2.5x3.5 inches">ATC Card — 2.5 × 3.5 in</option>
+          <option value="Tag 2x4 inches">Tag — 2 × 4 in</option>
+          <option value="Pocket card 3x4 inches">Pocket Card — 3 × 4 in</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Resolution</label>
+        <select id="resolution">
+          <option value="300 DPI">300 DPI — Standard Print Quality</option>
+          <option value="600 DPI">600 DPI — High Quality Print</option>
+          <option value="150 DPI">150 DPI — Digital / Screen Only</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: ELEMENT -->
+  <div class="card">
+    <div class="card-title">📌 Journal Element to Generate <span class="badge">Pick One</span></div>
+    <p class="chip-note">Select one element — one focused prompt is generated per click</p>
+    <div class="chips" id="elements">
+      <div class="chip active" data-value="Background Page">Background Page</div>
+      <div class="chip" data-value="Ephemera Sheet">Ephemera Sheet</div>
+      <div class="chip" data-value="Sticker Sheet">Sticker Sheet</div>
+      <div class="chip" data-value="Fussy Cut Images">Fussy Cuts</div>
+      <div class="chip" data-value="Journal Tags">Tags</div>
+      <div class="chip" data-value="Mini Envelopes">Mini Envelopes</div>
+      <div class="chip" data-value="Journaling Card">Journal Card</div>
+      <div class="chip" data-value="Decorative Border">Border</div>
+      <div class="chip" data-value="Folio Pocket Page">Folio Pocket</div>
+      <div class="chip" data-value="ATC Card">ATC Card</div>
+      <div class="chip" data-value="Bookmark">Bookmark</div>
+      <div class="chip" data-value="Writing Page">Writing Page</div>
+      <div class="chip" data-value="Pocket Insert">Pocket Insert</div>
+      <div class="chip" data-value="Washi Tape Strip">Washi Tape</div>
+      <div class="chip" data-value="Library Card & Pocket">Library Card</div>
+    </div>
+    <button class="btn-generate" id="generateBtn" onclick="generatePrompt()">❀ &nbsp;Generate Prompt</button>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- OUTPUT -->
+  <div class="output-area" id="output">
+    <div class="kit-bar" id="kitBar"></div>
+    <div class="prompt-result">
+      <div class="result-type" id="resultElement"></div>
+      <p class="prompt-text" id="resultPrompt"></p>
+      <div class="prompt-actions">
+        <button class="btn-copy" id="copyBtn" onclick="copyPrompt()"><span>📋</span> Copy Prompt</button>
+      </div>
+    </div>
+    <div class="action-row">
+      <button class="btn-action primary" onclick="generatePrompt()">✦ Generate Another</button>
+      <button class="btn-action" onclick="randomiseAll()">✨ Randomise All &amp; Generate</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-links">
+      <a class="footer-link" href="https://www.tiktok.com/@zenarastar" target="_blank">TikTok @zenarastar</a>
+      <a class="footer-link" href="https://www.youtube.com/channel/UCusY57wfUQSpbnLSg7FKt1Q" target="_blank">YouTube</a>
+      <a class="footer-link" href="https://pincraftai.gumroad.com/l/pincraftai" target="_blank">PinCraft AI</a>
+      <a class="footer-link" href="https://www.instantrights.com/" target="_blank">InstantRights.com</a>
+    </div>
+    <p class="footer-copy">Made with ❀ for junk journal creators · Powered by Claude AI</p>
+  </div>
+
+</div>
+
+<script>
+/* ── DATA ── */
+const THEMES=["Victorian Romance","French Vintage","Shabby Chic","Rustic Farmhouse","Antique Parlor","Butterfly Garden","Dragonfly & Botanicals","Bees & Honey","Woodland Animals","Wildflower Meadow","Peacock & Roses","Mushroom Forest","Cottage Tea Party","Sunshine Garden","Baking & Kitchen","Gothic Apothecary","Haunted Mansion","Witchcore Spell Books","Dark Academia Library","Vintage Celestial","Zodiac & Stars","Tarot & Crystal","Moon Phases","Old World Maps","Vintage Travel","Vintage Easter","Retro 1950s Kitchen","Vintage Sewing","Botanical Studies","Cherry Blossom Spring"];
+const STYLES=["Vintage Watercolor","Antique Engraving","Soft Pastel Illustration","Hand-Painted Mixed Media","Aged Paper Collage","Victorian Botanical Print","Distressed Grunge Paper","Whimsical Storybook","Dark Moody Gothic","Sepia Toned Manuscript","Dreamy Soft Focus","Cottagecore Watercolor","Layered Paper Collage","Faded Ink Illustration"];
+const PALETTES=["Soft Blush & Cream","Dusty Rose & Antique Gold","Sage Green & Warm Neutrals","Mustard Yellow & Cream","Vintage Blue & Ivory","Terracotta & Burnt Orange","Lavender & Dusty Rose","Black & Ivory with Gold","Sepia Brown & Parchment","Cottagecore Pastels","Pink & Mint Retro","Deep Teal & Antique Gold","Muted Rainbow on Cream","Forest Greens & Earthy Brown"];
+const TEXTURES=["Tea Stained Aged Paper","Coffee Stained Parchment","Vintage Manuscript","Crumpled Handmade Paper","Distressed Cardstock","Old Newspaper Print","Linen Fabric Texture","Water Damaged Paper","Antique Ledger Paper","Rice Paper Texture"];
+const ATMOSPHERES=["Romantic & Dreamy","Cozy & Nostalgic","Whimsical & Playful","Mysterious & Moody","Melancholic & Wistful","Magical & Ethereal","Rustic & Grounded","Elegant & Refined","Dark & Brooding","Light & Airy","Vintage & Sentimental","Witchy & Mystical","Peaceful & Serene","Adventurous & Bold"];
+const LAYOUTS=["Scattered Collage","Symmetrical & Centered","Corner Cluster","Border Frame","Full-Bleed Background","Diagonal Flow","Layered Ephemera","Minimal & Clean","Wreath / Circular","Top & Bottom Border","Cascading Side Cluster","Patchwork Grid"];
+const DENSITIES=["Minimal — lots of white space","Moderate — balanced mix","Heavily Layered — rich & complex"];
+const LIGHTINGS=["Soft Natural Light","Warm Candlelight Glow","Dappled Sunlight","Aged & Faded — no lighting","Soft Vignette Edges","Golden Hour Warmth","Moody Dramatic Shadows","Soft Bokeh Background","Flat Lay — even lighting","Misty & Atmospheric"];
+const USECASES=["Journaling page with blank writing space","Decorative background — no writing space","Scrapbook layout page","Photo pocket insert","Cover page or title page","Collage base layer","Bible journaling page","Planner insert page","Recipe page with blank lines","Gratitude or affirmation page","Memory keeping spread"];
+
+/* ── HELPERS ── */
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function getVal(id, arr) { const v = document.getElementById(id).value; return v === 'random' ? pick(arr) : v; }
+function getElement() { const a = document.querySelector('#elements .chip.active'); return a ? a.dataset.value : 'Background Page'; }
+
+/* ── ACCORDION ── */
+function toggleAccordion(btn) {
+  const body = btn.nextElementSibling;
+  const icon = btn.querySelector('.accordion-icon');
+  body.classList.toggle('open');
+  icon.classList.toggle('open');
+}
+
+/* ── CHIPS single-select ── */
+document.querySelectorAll('#elements .chip').forEach(function(chip) {
+  chip.addEventListener('click', function() {
+    document.querySelectorAll('#elements .chip').forEach(function(c) { c.classList.remove('active'); });
+    chip.classList.add('active');
+  });
+});
+
+/* ── RANDOMISE ALL ── */
+function randomiseAll() {
+  ['theme','style','palette','texture','atmosphere','layout','density','lighting','usecase'].forEach(function(id) {
+    document.getElementById(id).value = 'random';
+  });
+  const chips = Array.from(document.querySelectorAll('#elements .chip'));
+  chips.forEach(function(c) { c.classList.remove('active'); });
+  chips[Math.floor(Math.random() * chips.length)].classList.add('active');
+  generatePrompt();
+}
+
+/* ── ELEMENT MOTIF DETAILS ── */
+const ELEMENT_DETAILS = {
+  'Background Page':    { desc: 'full-page decorative background paper', extras: ['aged manuscript script faintly visible underneath', 'soft worn edges and subtle foxing marks', 'gentle tonal variation across the surface'] },
+  'Ephemera Sheet':     { desc: 'printable ephemera sheet with multiple individual cut-out pieces', extras: ['varied sizes from small to medium', 'faux torn paper edges on some pieces', 'mix of tickets, labels, tags and cards arranged on a white sheet'] },
+  'Sticker Sheet':      { desc: 'printable sticker sheet with isolated elements on white background', extras: ['clean white background with soft drop shadows', 'assorted sizes neatly laid out in rows', 'each element has a thin white border for easy cutting'] },
+  'Fussy Cut Images':   { desc: 'set of detailed fussy cut illustration pieces on white background', extras: ['crisp clean edges ready for cutting', 'varied scales from small accents to larger focal pieces', 'each element isolated with soft shadow'] },
+  'Journal Tags':       { desc: 'set of decorative journal tags with hole punch detail at top', extras: ['varied tag shapes including rectangular, rounded and scalloped', 'some with twine bow illustrations', 'back side with faint ruled lines for writing'] },
+  'Mini Envelopes':     { desc: 'set of printable mini envelopes in open and closed views', extras: ['flap detail visible on open versions', 'scored fold lines shown as delicate dashed marks', 'sized for pocket inserts and small notes'] },
+  'Journaling Card':    { desc: 'journaling card with generous blank writing area', extras: ['faint ruled lines across the writing space', 'decorative border framing the card edges', 'space for a date or title at the top'] },
+  'Decorative Border':  { desc: 'decorative border and frame design on transparent-style white background', extras: ['ornate corner detail', 'repeating motif along the edges', 'open center space for layering content'] },
+  'Folio Pocket Page':  { desc: 'folio pocket page with layered pockets and tabs', extras: ['multiple overlapping pocket sections', 'tab details along the top and side edges', 'printable and foldable in one sheet'] },
+  'ATC Card':           { desc: 'Artist Trading Card sized decorative card (2.5 x 3.5 inches)', extras: ['full bleed design to card edges', 'rich detailed illustration', 'suitable for swapping, collecting and layering'] },
+  'Bookmark':           { desc: 'tall slim decorative bookmark design', extras: ['vertical orientation with tassel detail illustrated at top', 'back side with faint writing lines', 'clean straight edges for easy cutting'] },
+  'Writing Page':       { desc: 'decorative writing page with lined writing space', extras: ['evenly spaced ruled lines across the main body', 'decorative header and footer areas', 'generous margins for doodling and stamping'] },
+  'Pocket Insert':      { desc: 'pocket insert card designed to slide into a journal pocket', extras: ['slightly smaller than standard card size for easy insertion', 'decorative face design', 'plain back for notes'] },
+  'Washi Tape Strip':   { desc: 'set of printable washi tape strip designs arranged in rows', extras: ['repeating pattern along the length of each strip', 'varied widths from thin accent strips to wide statement strips', 'white background for cutting and layering'] },
+  'Library Card':       { desc: 'vintage library card and matching pocket envelope set', extras: ['aged card with ruled date-due lines', 'matching pocket with library label detail', 'faded stamp marks and catalogue number details'] }
+};
+
+/* ── THEME MOTIF LIBRARY ── */
+const THEME_MOTIFS = {
+  'Victorian Romance':      'roses, lace doilies, vintage perfume bottles, wax seals, love letters, ribbon bows, pearl buttons, sheet music fragments',
+  'French Vintage':         'Eiffel Tower silhouettes, French postage stamps, lavender sprigs, café menus, handwritten script, toile patterns, baguette and croissant illustrations',
+  'Shabby Chic':            'faded roses, distressed paint textures, vintage teacups, pearl buttons, lace overlays, cottage florals, chippy white frames',
+  'Rustic Farmhouse':       'barn wood textures, sunflowers, mason jars, plaid patterns, wildflower bunches, chicken wire, galvanized tin elements',
+  'Antique Parlor':         'Victorian portrait silhouettes, grandfather clock faces, tasselled curtain details, cameo frames, velvet textures, sepia portraits',
+  'Edwardian':              'art nouveau florals, peacock feathers, stained glass patterns, botanical prints, ornate brass frames, Edwardian typography',
+  'Retro 1950s Kitchen':    'mint green appliances, cherry red accents, polka dot patterns, vintage recipe cards, diner-style typography, milkshake glasses, pie illustrations',
+  'Butterfly Garden':       'watercolor butterflies in multiple species, botanical flowers, delicate wing detail, pressed specimen style, garden foliage',
+  'Dragonfly & Botanicals': 'iridescent dragonfly illustrations, fern fronds, wildflowers, botanical study details, aged parchment backgrounds with scientific notation',
+  'Bees & Honey':           'honeybees, honeycomb hexagon patterns, clover blossoms, honey jar illustrations, golden drizzle textures, beehive details',
+  'Woodland Animals':       'foxes, deer, rabbits, owls, mushrooms, fern clusters, acorns, pine cones, moss textures, forest floor details',
+  'Wildflower Meadow':      'daisies, poppies, cornflowers, grasses, pressed flower specimens, botanical line illustrations, meadow foliage',
+  'Peacock & Roses':        'peacock feather eyes, ornate roses, teal and emerald jewel tones, filigree borders, garden party motifs',
+  'Mushroom Forest':        'watercolor mushrooms in varieties, woodland moss, ferns, fairy ring details, forest floor textures, earthy browns and greens',
+  'Cottage Tea Party':      'teacups and saucers, Victoria sponge cake, bunting flags, garden roses, mismatched china patterns, checkered tablecloth',
+  'Sunshine Garden':        'daisies, sunflowers, bumblebees, garden cottage, watering can, garden tools, golden yellow tones, rainbow details',
+  'Baking & Kitchen':       'vintage rolling pins, mixing bowls, recipe cards, flour sacks, cherry prints, kitchen herbs, bread loaves',
+  'Garden Shed':            'clay terracotta pots, seed packet labels, garden twine, trowels, watering cans, botanical seed illustrations',
+  'Farmhouse Florals':      'peonies, eucalyptus, cotton bolls, wooden crate textures, linen backgrounds, simple stems and leaves',
+  'Gothic Apothecary':      'apothecary bottles and vials, dried herbs hanging, spell ingredients, raven feathers, moon phases, black roses, aged potion labels',
+  'Haunted Mansion':        'iron gate silhouettes, ravens, full moon, gothic architecture details, skeleton keys, candelabras, cobwebs',
+  'Witchcore Spell Books':  'spell book pages, pentagram details, crystal clusters, dried botanicals, cauldron illustrations, moon and star motifs, candle wax drips',
+  'Dark Academia Library':  'open antique books, quill pens, ink bottles, candle flames, globe details, maps, scholarly script, library catalogue cards',
+  'Moon Magic':             'crescent and full moon illustrations, star maps, celestial clouds, moonflowers, moth illustrations, silver and midnight blue tones',
+  'Vintage Celestial':      'barn owl illustrations, sun faces, moon phases, star constellations, astronomical diagrams, celestial manuscript details',
+  'Zodiac & Stars':         'zodiac constellation maps, astrology glyphs, star charts, planet illustrations, celestial sphere diagrams',
+  'Tarot & Crystal':        'tarot card border designs, crystal cluster illustrations, mystic eye motifs, geometric sacred symbols, amethyst and rose quartz details',
+  'Moon Phases':            'full moon cycle diagrams, lunar calendar grids, night sky textures, moth and moonflower pairings',
+  'Cosmic Butterflies':     'butterflies with galaxy wing patterns, nebula textures, stardust trails, cosmic colour gradients, celestial botanical pairings',
+  'Old World Maps':         'antique navigation charts, compass rose illustrations, sea monster details, longitude latitude grids, aged parchment cartography',
+  'Vintage Travel':         'steamer trunk luggage labels, passport stamps, vintage airline tickets, world map fragments, camera illustrations, explorer journal details',
+  'Air Mail & Postcards':   'air mail envelope borders, postage stamps, postmarks, handwritten address blocks, twine and wax seal details',
+  'Parisian Explorer':      'Parisian street map fragments, café receipt stubs, Metro ticket stubs, French postmarks, Tour Eiffel outline details',
+  'Japanese Journey':       'koi fish, geisha silhouettes, red lanterns, cherry blossom branches, wave patterns inspired by Hokusai, Japanese calligraphy',
+  'Vintage Easter':         'Easter bunnies, speckled eggs in baskets, spring florals, pastel ribbons, chick illustrations, moss-lined nest details',
+  'Summer Coastal':         'seashells, coral illustrations, sea glass textures, ship rope knots, lighthouse silhouettes, nautical rope borders',
+  'Autumn Harvest':         'pumpkins, fall maple leaves, acorns, harvest wheat, apple illustrations, warm amber and rust tones, crow details',
+  'Victorian Christmas':    'vintage Santa illustrations, holly wreaths, candle-lit tree silhouettes, gift box illustrations, Victorian Christmas card typography',
+  'Cherry Blossom Spring':  'sakura blossom branches, falling petals, Japanese-style birds, soft pink and white tones, spring mist watercolor washes',
+  'Vintage Sewing':         'antique sewing machines, lace trims, thread spools, button collections, thimbles, fabric swatches, vintage pattern envelope details',
+  'Vintage Newspaper':      'aged newspaper columns, vintage typography headlines, halftone photograph textures, advertisement clippings, press stamps',
+  'Vintage Ledger':         'handwritten ledger columns, aged account book pages, ink blots, old arithmetic notations, ledger line textures',
+  'Handwriting & Typewriter':'vintage typewriter keys, handwritten cursive script fragments, ink splatter marks, correction tape details, ribbon spool illustrations',
+  'Botanical Studies':      'scientific botanical illustrations, plant specimen labels, pressed and pinned flower studies, handwritten Latin names, measurement grids'
+};
+
+/* ── DENSITY DESCRIPTORS ── */
+const DENSITY_DESC = {
+  'Minimal — lots of white space': 'minimal composition with generous breathing room and plenty of open space for layering and journaling',
+  'Moderate — balanced mix':       'moderately filled with a balanced arrangement that leaves room to journal while maintaining visual interest',
+  'Heavily Layered — rich & complex': 'richly layered and densely detailed, packed with intricate elements and complex collage depth'
+};
+
+/* ── USECASE DESCRIPTORS ── */
+const USECASE_DESC = {
+  'Journaling page with blank writing space': 'designed as a journaling page with a clear open writing area left intentionally blank for handwritten entries',
+  'Decorative background — no writing space': 'purely decorative background with no writing space — designed for visual impact and layering',
+  'Scrapbook layout page':                    'laid out as a scrapbook page with space designated for photographs and memory keeping',
+  'Photo pocket insert':                      'structured to hold photos with defined pocket areas and decorative surround',
+  'Cover page or title page':                 'designed as a statement cover or title page with bold focal composition',
+  'Collage base layer':                       'structured as a collage base layer meant to be built upon with additional ephemera',
+  'Bible journaling page':                    'designed for Bible journaling with a wide decorative margin and open center',
+  'Planner insert page':                      'structured as a planner insert with organised sections and decorative details',
+  'Recipe page with blank lines':             'formatted as a recipe page with ruled lines and decorative kitchen-themed border',
+  'Gratitude or affirmation page':            'designed as a gratitude or affirmation page with an uplifting open writing space',
+  'Memory keeping spread':                    'formatted as a memory keeping spread with areas for photos, notes and decorative details'
+};
+
+/* ── ATMOSPHERE DESCRIPTORS ── */
+const ATMO_DESC = {
+  'Romantic & Dreamy':    'suffused with a romantic, dreamy quality — soft focus and tender nostalgia',
+  'Cozy & Nostalgic':     'warm and deeply nostalgic, evoking the comfort of well-loved and familiar things',
+  'Whimsical & Playful':  'full of whimsical playful energy with a lighthearted storybook charm',
+  'Mysterious & Moody':   'shrouded in mystery and moody atmospheric depth',
+  'Melancholic & Wistful':'touched by gentle melancholy and wistful longing',
+  'Magical & Ethereal':   'glowing with magical ethereal light, otherworldly and luminous',
+  'Rustic & Grounded':    'earthy and grounded with honest rustic warmth',
+  'Elegant & Refined':    'refined and elegant with understated sophistication',
+  'Dark & Brooding':      'dark and brooding with dramatic tonal contrasts',
+  'Light & Airy':         'light and airy with an open bright quality',
+  'Vintage & Sentimental':'steeped in vintage sentiment and gentle aged beauty',
+  'Witchy & Mystical':    'wrapped in witchy mystical energy, ancient and esoteric',
+  'Peaceful & Serene':    'calm and serene with a quietly meditative peace',
+  'Adventurous & Bold':   'bold and adventurous with confident graphic energy'
+};
+
+/* ── BUILD PROMPT LOCALLY — NO API NEEDED ── */
+function buildPrompt(element, theme, style, palette, texture, atmosphere, layout, density, lighting, usecase, pagesize, resolution) {
+
+  const elData    = ELEMENT_DETAILS[element]  || ELEMENT_DETAILS['Background Page'];
+  const motifs    = THEME_MOTIFS[theme]        || 'vintage florals, aged manuscript details, antique ornaments';
+  const atmoDesc  = ATMO_DESC[atmosphere]      || 'evocative and atmospheric';
+  const densDesc  = DENSITY_DESC[density]      || 'moderately detailed';
+  const ucDesc    = USECASE_DESC[usecase]      || 'designed as a decorative printable page';
+
+  // Pick one random extra detail for variety
+  var extra = elData.extras[Math.floor(Math.random() * elData.extras.length)];
+
+  // Layout phrases
+  var layoutPhrases = {
+    'Scattered Collage':        'elements scattered in an organic collage arrangement',
+    'Symmetrical & Centered':   'arranged in a symmetrical, centrally balanced composition',
+    'Corner Cluster':           'motifs clustered richly in the corners with open centre',
+    'Border Frame':             'organised as a decorative border frame around the page edges',
+    'Full-Bleed Background':    'filling the entire page edge to edge as a full-bleed background',
+    'Diagonal Flow':            'flowing diagonally across the page from corner to corner',
+    'Layered Ephemera':         'built up in layered ephemera collage style',
+    'Minimal & Clean':          'arranged in a clean minimal composition',
+    'Wreath / Circular':        'composed as a circular wreath arrangement',
+    'Top & Bottom Border':      'decorative elements framing the top and bottom edges',
+    'Cascading Side Cluster':   'cascading down one side in a lush side cluster',
+    'Patchwork Grid':           'arranged in a patchwork grid of varied sections'
+  };
+  var layoutDesc = layoutPhrases[layout] || 'arranged in a decorative composition';
+
+  // Lighting phrases
+  var lightPhrases = {
+    'Soft Natural Light':          'bathed in soft natural light',
+    'Warm Candlelight Glow':       'lit by warm golden candlelight',
+    'Dappled Sunlight':            'touched by dappled sunlight filtering through',
+    'Aged & Faded — no lighting':  'aged and evenly faded with no directional light',
+    'Soft Vignette Edges':         'with soft vignette darkening at the edges',
+    'Golden Hour Warmth':          'warmed by a golden hour amber glow',
+    'Moody Dramatic Shadows':      'deepened with moody dramatic shadows',
+    'Soft Bokeh Background':       'with a soft bokeh quality to background elements',
+    'Flat Lay — even lighting':    'with flat even lighting throughout',
+    'Misty & Atmospheric':         'veiled in a soft misty atmospheric haze'
+  };
+  var lightDesc = lightPhrases[lighting] || 'with soft natural light';
+
+  // Assemble the prompt
+  var prompt =
+    style + ' style ' + elData.desc + ' for a ' + theme.toLowerCase() + ' junk journal. ' +
+    'Features ' + motifs + ', ' + layoutDesc + '. ' +
+    'Color palette of ' + palette.toLowerCase() + ' on ' + texture.toLowerCase() + ' with ' + extra + '. ' +
+    'The overall mood is ' + atmoDesc + ', ' + lightDesc + '. ' +
+    'The composition is ' + densDesc + ', ' + ucDesc + '. ' +
+    'Printable quality, ' + resolution + ', ' + pagesize + ', high resolution, white background, clean edges, no watermark.';
+
+  return prompt;
+}
+
+/* ── GENERATE — NO API ── */
+function generatePrompt() {
+  const theme      = getVal('theme', THEMES);
+  const style      = getVal('style', STYLES);
+  const palette    = getVal('palette', PALETTES);
+  const texture    = getVal('texture', TEXTURES);
+  const atmosphere = getVal('atmosphere', ATMOSPHERES);
+  const layout     = getVal('layout', LAYOUTS);
+  const density    = getVal('density', DENSITIES);
+  const lighting   = getVal('lighting', LIGHTINGS);
+  const usecase    = getVal('usecase', USECASES);
+  const pagesize   = document.getElementById('pagesize').value;
+  const resolution = document.getElementById('resolution').value;
+  const element    = getElement();
+
+  document.getElementById('output').classList.remove('visible');
+  document.getElementById('errorBox').classList.remove('visible');
+
+  var prompt = buildPrompt(element, theme, style, palette, texture, atmosphere, layout, density, lighting, usecase, pagesize, resolution);
+
+  showResult(prompt, element, theme, style, atmosphere, layout, pagesize, resolution);
+}
+
+/* ── SHOW RESULT ── */
+function showResult(prompt, element, theme, style, atmosphere, layout, pagesize, resolution) {
+  document.getElementById('kitBar').innerHTML =
+    '<div class="kit-bar-info"><strong>' + element + '</strong> &nbsp;·&nbsp; ' + theme + ' &nbsp;·&nbsp; ' + style +
+    '<br><span style="font-size:.9rem;color:var(--ink-lt);">' + atmosphere + ' &nbsp;·&nbsp; ' + layout + '</span></div>' +
+    '<div class="kit-tags"><span class="kit-tag rose">' + resolution + '</span>' +
+    '<span class="kit-tag gold">' + pagesize.split('—')[0].trim() + '</span></div>';
+  document.getElementById('resultElement').textContent = element;
+  document.getElementById('resultPrompt').textContent = prompt;
+  const btn = document.getElementById('copyBtn');
+  btn.innerHTML = '<span>📋</span> Copy Prompt';
+  btn.classList.remove('copied');
+  document.getElementById('output').classList.add('visible');
+  document.getElementById('output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ── COPY ── */
+function copyPrompt() {
+  const text = document.getElementById('resultPrompt').textContent;
+  const btn = document.getElementById('copyBtn');
+  function feedback() {
+    btn.innerHTML = '<span>✅</span> Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.innerHTML = '<span>📋</span> Copy Prompt';
+      btn.classList.remove('copied');
+    }, 2500);
+  }
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(feedback).catch(function() { fallback(text); feedback(); });
+  } else {
+    fallback(text);
+    feedback();
+  }
+}
+function fallback(t) {
+  const ta = document.createElement('textarea');
+  ta.value = t;
+  ta.style.cssText = 'position:fixed;opacity:0';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+}
+</script>
+</body>
+</html>
