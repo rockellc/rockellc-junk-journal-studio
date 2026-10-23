@@ -691,7 +691,7 @@ function generatePrompt(){
     "Sticker Sheet": `Create one printable sticker sheet of 8–12 individual die-cut stickers on a clean white background. Each sticker has a clear white border, is separated from the others, and is fully visible. No sheet-sized background artwork.`,
     "Fussy Cut Images": `Create a printable collection of 6–9 separate fussy-cut illustrations on a plain white background. Give each illustration a clean cutout silhouette and generous spacing. No full-page scene, no overlapping pieces.`,
     "Journal Tags": outputMode==="single" ? `Create exactly 1 individual journal tag, approximately 2 × 3 inches, fully visible on a plain white background, with a recognizable tag silhouette and a small hole near the top. Do not include other tags.` : outputMode==="sheet" ? `Create a printable sheet of 6 coordinated journal tags in a neat grid on a plain white background. Each tag has a recognizable silhouette and small hole near the top, fully visible with clear gaps and no overlap.` : `Create exactly 3 coordinated individual journal tags, each approximately 2 × 3 inches, arranged side by side on a plain white background, fully visible and separated.`,
-    "Mini Envelopes": envelopeFormat==="template" ? `Create a flat, unfolded envelope CUT-OUT TEMPLATE (dieline), not a picture of a finished envelope. Show one central envelope body with correctly attached top flap, bottom flap, two side flaps and glue tabs. Lay the entire template flat, fully visible, symmetrical, and isolated on a plain white background. Use clear solid cut lines and dashed fold lines, with enough margin around the template. Apply the selected theme as decorative paper artwork inside the body and flaps, while keeping cut and fold guides clearly visible. No perspective, no hands, no mockup, no assembled envelope.` : `Create a picture of one finished, closed mini envelope viewed directly from above on a plain white background. Apply the selected theme as surface decoration. This is an inspiration image, not a cut-out template.`,
+    "Mini Envelopes": envelopeFormat==="template" ? `Create a SIMPLE, FLAT, TOP-DOWN ENVELOPE NET TEMPLATE for a mini envelope, like a clean vector craft-template diagram. Show ONE central rectangular envelope body. Attach exactly FOUR correctly joined flaps to the body: one top flap, one bottom flap, and one side flap on the left and right edges. Add small glue tabs only where needed on the side flaps. All flaps must meet the body edges exactly; do not leave gaps, detached pieces, doubled outlines, intersecting lines, or overlapping shapes. Use a plain white background and thin, dark, solid OUTER CUT LINES; use dashed fold lines only where each flap joins the central body. Keep cut lines and fold lines distinct and unobstructed. Keep the complete template centered with generous white margin. Put the selected theme only as light decorative artwork INSIDE the paper shapes, never over the guide lines. Orthographic flat view, simple 2D vector template, no perspective, no shadows, no mockup, no finished envelope, no extra pieces, no labels or measurements.` : `Create a picture of one finished, closed mini envelope viewed directly from above on a plain white background. Apply the selected theme as surface decoration. This is an inspiration image, not a cut-out template.`,
     "Journaling Card": outputMode==="single" ? `Create one individual journaling card, approximately 3 × 4 inches, portrait orientation, shown flat and fully in frame on a plain white background. The card has a clear rectangular edge and useful blank writing space.` : outputMode==="sheet" ? `Create a printable sheet of 6 separate coordinated journaling cards, approximately 3 × 4 inches each, arranged in a neat grid on a plain white background with clear gaps and no overlap. Each card has a clear edge and useful blank writing space.` : `Create exactly 3 coordinated journaling cards, approximately 3 × 4 inches each, portrait orientation, fully visible and separated on a plain white background. Each card has a clear edge and useful blank writing space.`,
     "Decorative Border": `Create one long, narrow decorative border strip, isolated horizontally on a plain white background. Show the entire strip from end to end, with clean edges and no full-page background.`,
     "Folio Pocket Page": `Create decorative surface artwork intended to be applied to a separately constructed folio pocket. Show a flat rectangular design on a plain white background; do not invent fold lines, tabs, or a full assembled journal.`,
@@ -739,7 +739,7 @@ function generatePrompt(){
       "Variation 2: use a different theme-relevant motif and arrangement from Prompt 1.",
       "Variation 3: use a third distinct theme-relevant motif and arrangement."
     ];
-    const prompts=variations.map((v,i)=>`${prompt} Create ONLY ONE ${element.toLowerCase()} for this prompt, not a set or sheet. ${v} Keep the same theme, art style, palette, texture and overall collection aesthetic across all three prompts, while making each design visibly different. Generate this image separately from the other prompts.`);
+    const prompts=variations.map((v,i)=>{let singlePrompt=prompt;if(element==="Gift Tag")singlePrompt=prompt.replace("Create a coordinated bundle of exactly 3 individual gift tags, each sized according to the selected intended print size, fully visible and separated with clear white space on a plain white background. Each tag must have its own recognizable tag silhouette and small string hole at the top. Make the 3 designs visually coordinated but give each a different theme-specific decoration. Do not overlap or crop the tags and do not create a full page.","Create exactly 1 individual gift tag, fully visible and centered on a plain white background, with a recognizable tag silhouette and a small string hole at the top. No other tags.");else if(element==="Journal Tags")singlePrompt=prompt.replace("Create exactly 3 coordinated individual journal tags, each approximately 2 × 3 inches, arranged side by side on a plain white background, fully visible and separated.","Create exactly 1 individual journal tag, fully visible on a plain white background, with a recognizable tag silhouette and a small hole near the top. Do not include other tags.");return `${singlePrompt} Create ONLY ONE ${element.toLowerCase()} for this prompt, not a set or sheet. ${v} Keep the same theme, art style, palette, texture and overall collection aesthetic across all three prompts, while making each design visibly different. Generate this image separately from the other prompts.`;});
     showBundleResults(prompts,element,theme,style,atmosphere,layout,pagesize,resolution);
   } else {
     showResult(prompt,element,theme,style,atmosphere,layout,pagesize,resolution);
@@ -750,16 +750,29 @@ function showBundleResults(prompts,element,theme,style,atmosphere,layout,pagesiz
   showResult(prompts[0],element,theme,style,atmosphere,layout,pagesize,resolution);
   const holder=document.getElementById("bundlePrompts");
   holder.innerHTML="";
+  const copyAll=document.createElement("button");
+  copyAll.className="btn-copy";
+  copyAll.textContent="📋 Copy All 3 Prompts";
+  copyAll.style.marginBottom="12px";
+  copyAll.onclick=()=>{
+    const allText=prompts.map((p,i)=>"PROMPT "+(i+1)+"\n\n"+p).join("\n\n--------------------\n\n");
+    copyTextToClipboard(allText).then(()=>{copyAll.textContent="✅ All Prompts Copied!";}).catch(()=>{const ta=document.createElement("textarea");ta.value=allText;ta.style.cssText="width:100%;min-height:180px";holder.insertBefore(ta,copyAll.nextSibling);ta.focus();ta.select();copyAll.textContent="Select all text and copy";});
+  };
+  holder.append(copyAll);
   prompts.forEach((prompt,index)=>{
     const card=document.createElement("div"); card.className="bundle-prompt-card";
     const heading=document.createElement("h4"); heading.textContent=`Prompt ${index+1}`;
     const body=document.createElement("p"); body.textContent=prompt;
     const button=document.createElement("button"); button.textContent=`Copy Prompt ${index+1}`;
-    button.onclick=()=>{navigator.clipboard.writeText(prompt).then(()=>{button.textContent="Copied!";}).catch(()=>{const range=document.createRange();range.selectNodeContents(body);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);button.textContent="Select text and copy";});};
+    button.onclick=()=>{copyTextToClipboard(prompt).then(()=>{button.textContent="Copied!";}).catch(()=>{const ta=document.createElement("textarea");ta.value=prompt;ta.style.cssText="width:100%;min-height:100px";card.insertBefore(ta,button);ta.focus();ta.select();button.textContent="Select text and copy";});};
     card.append(heading,body,button); holder.append(card);
   });
   document.getElementById("resultPrompt").style.display="none";
   document.getElementById("copyBtn").style.display="none";
+}
+function copyTextToClipboard(value){
+  if(navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(value);
+  return new Promise((resolve,reject)=>{try{const ta=document.createElement("textarea");ta.value=value;ta.style.cssText="position:fixed;left:0;top:0;opacity:0";document.body.appendChild(ta);ta.focus();ta.select();const ok=document.execCommand("copy");document.body.removeChild(ta);ok?resolve():reject();}catch(e){reject(e);}});
 }
 function showResult(prompt,element,theme,style,atmosphere,layout,pagesize,resolution){
   const holder=document.getElementById("bundlePrompts"); if(holder) holder.innerHTML="";
