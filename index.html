@@ -98,6 +98,15 @@ body{background:var(--off-white);font-family:'Lato',sans-serif;color:var(--ink);
 .field select:hover{border-color:#ccc;}
 
 /* CHIPS */
+.envelope-mode{display:none;margin-top:14px;padding:14px 16px;background:var(--gold-bg);border:1px solid rgba(184,150,80,.35);border-radius:10px;}
+.envelope-mode.visible{display:block;}
+.envelope-mode label{display:block;font-size:.82rem;font-weight:700;color:var(--ink-mid);margin-bottom:7px;}
+.envelope-mode select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:white;color:var(--ink);font:inherit;}
+.bundle-prompts{display:grid;gap:14px;margin-top:14px;}
+.bundle-prompt-card{background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.bundle-prompt-card h4{font-size:.95rem;margin:0 0 8px;color:var(--ink);}
+.bundle-prompt-card p{white-space:pre-wrap;line-height:1.65;font-size:.9rem;margin:0 0 12px;color:var(--ink-mid);}
+.bundle-prompt-card button{border:1px solid var(--border);border-radius:8px;padding:8px 12px;background:white;color:var(--ink);cursor:pointer;}
 .gift-tag-output{display:none;margin-top:14px;padding:14px 16px;background:var(--gold-bg);border:1px solid rgba(184,150,80,.35);border-radius:10px;}
 .gift-tag-output.visible{display:block;}
 .gift-tag-output label{display:block;font-size:.82rem;font-weight:700;color:var(--ink-mid);margin-bottom:7px;}
@@ -472,6 +481,14 @@ body{background:var(--off-white);font-family:'Lato',sans-serif;color:var(--ink);
       </select>
       <p>Choose one item, a coordinated collection, or a full sheet where suitable. Image tools may vary in how closely they follow quantity and layout instructions.</p>
     </div>
+    <div class="envelope-mode" id="envelopeMode">
+      <label for="envelopeFormat">Envelope output type</label>
+      <select id="envelopeFormat">
+        <option value="template">Unfolded cut-out template</option>
+        <option value="finished">Finished envelope design</option>
+      </select>
+      <p>Template mode requests a flat envelope net with a body, flaps, glue tabs, and cut/fold guides. AI-generated guides may need checking before cutting.</p>
+    </div>
 
     <!-- STRUCTURAL NOTICE — shown when a structural element is selected -->
     <div class="structural-notice" id="structuralNotice">
@@ -497,6 +514,7 @@ body{background:var(--off-white);font-family:'Lato',sans-serif;color:var(--ink);
     <div class="prompt-result">
       <div class="result-type" id="resultElement"></div>
       <p class="prompt-text" id="resultPrompt"></p>
+      <div class="bundle-prompts" id="bundlePrompts"></div>
       <div class="prompt-actions">
         <button class="btn-copy" id="copyBtn" onclick="copyPrompt()"><span>📋</span> Copy Prompt</button>
       </div>
@@ -595,6 +613,8 @@ function updateGiftTagOutput(chip){
   const panel=document.getElementById("giftTagOutput");
   const eligible=["Gift Tag","Journal Tags","Journaling Card","ATC Card","Bookmark","Pocket Insert","Library Card","Greeting Card","Mini Envelopes","Washi Tape Strip","Decorative Border","Fussy Cut Images"];
   if(panel) panel.classList.toggle("visible",eligible.includes(chip.dataset.value));
+  const envelopePanel=document.getElementById("envelopeMode");
+  if(envelopePanel) envelopePanel.classList.toggle("visible",chip.dataset.value==="Mini Envelopes");
   const select=document.getElementById("outputMode");
   if(select){
     const el=chip.dataset.value;
@@ -663,6 +683,7 @@ function generatePrompt(){
   const resolution=document.getElementById('resolution').value;
   const element=getElement();
   const outputMode=document.getElementById("outputMode").value;
+  const envelopeFormat=document.getElementById("envelopeFormat").value;
 
   const details = {
     "Background Page": `Create a single full-page junk journal background, ${pagesize}. The page itself fills the frame. ${layout} composition with ${density.toLowerCase()}.`,
@@ -670,7 +691,7 @@ function generatePrompt(){
     "Sticker Sheet": `Create one printable sticker sheet of 8–12 individual die-cut stickers on a clean white background. Each sticker has a clear white border, is separated from the others, and is fully visible. No sheet-sized background artwork.`,
     "Fussy Cut Images": `Create a printable collection of 6–9 separate fussy-cut illustrations on a plain white background. Give each illustration a clean cutout silhouette and generous spacing. No full-page scene, no overlapping pieces.`,
     "Journal Tags": outputMode==="single" ? `Create exactly 1 individual journal tag, approximately 2 × 3 inches, fully visible on a plain white background, with a recognizable tag silhouette and a small hole near the top. Do not include other tags.` : outputMode==="sheet" ? `Create a printable sheet of 6 coordinated journal tags in a neat grid on a plain white background. Each tag has a recognizable silhouette and small hole near the top, fully visible with clear gaps and no overlap.` : `Create exactly 3 coordinated individual journal tags, each approximately 2 × 3 inches, arranged side by side on a plain white background, fully visible and separated.`,
-    "Mini Envelopes": outputMode==="single" ? `Show exactly one small, flat mini envelope, approximately 3 × 2.5 inches, viewed directly from above on a plain white background. The envelope silhouette and flap edges must be clearly visible. Apply the chosen theme as surface decoration only.` : outputMode==="sheet" ? `Create a printable sheet of 6 separate mini envelope decorative designs on a plain white background, arranged in a neat grid with each envelope fully visible, clearly separated, and with flap edges visible.` : `Create exactly 3 coordinated small, flat mini envelopes viewed from above on a plain white background. Each envelope must have a clearly visible silhouette and flap edges; space them apart without overlap.`,
+    "Mini Envelopes": envelopeFormat==="template" ? `Create a flat, unfolded envelope CUT-OUT TEMPLATE (dieline), not a picture of a finished envelope. Show one central envelope body with correctly attached top flap, bottom flap, two side flaps and glue tabs. Lay the entire template flat, fully visible, symmetrical, and isolated on a plain white background. Use clear solid cut lines and dashed fold lines, with enough margin around the template. Apply the selected theme as decorative paper artwork inside the body and flaps, while keeping cut and fold guides clearly visible. No perspective, no hands, no mockup, no assembled envelope.` : `Create a picture of one finished, closed mini envelope viewed directly from above on a plain white background. Apply the selected theme as surface decoration. This is an inspiration image, not a cut-out template.`,
     "Journaling Card": outputMode==="single" ? `Create one individual journaling card, approximately 3 × 4 inches, portrait orientation, shown flat and fully in frame on a plain white background. The card has a clear rectangular edge and useful blank writing space.` : outputMode==="sheet" ? `Create a printable sheet of 6 separate coordinated journaling cards, approximately 3 × 4 inches each, arranged in a neat grid on a plain white background with clear gaps and no overlap. Each card has a clear edge and useful blank writing space.` : `Create exactly 3 coordinated journaling cards, approximately 3 × 4 inches each, portrait orientation, fully visible and separated on a plain white background. Each card has a clear edge and useful blank writing space.`,
     "Decorative Border": `Create one long, narrow decorative border strip, isolated horizontally on a plain white background. Show the entire strip from end to end, with clean edges and no full-page background.`,
     "Folio Pocket Page": `Create decorative surface artwork intended to be applied to a separately constructed folio pocket. Show a flat rectangular design on a plain white background; do not invent fold lines, tabs, or a full assembled journal.`,
@@ -708,10 +729,42 @@ function generatePrompt(){
   const themeGuidance = THEME_GUIDANCE[theme] || `Make the selected theme, "${theme}", clearly recognizable through specific subject matter and motifs. Do not rely on the palette, paper texture, or art style alone to communicate the theme.`;
   const TEXT_GUIDANCE = `DEFAULT TO TEXT-FREE ARTWORK. Do not include words, letters, numbers, labels, captions, signatures, foreign-language text, pseudo-writing, or decorative gibberish. Leave clear areas where the customer can add their own wording in Canva. If the selected element normally requires labels or wording, render blank label areas instead of text.`;
   const prompt = `${objectPrompt} Theme: ${theme}. Theme-specific subject guidance: ${themeGuidance} Art style: ${style}. Palette: ${palette}. Paper/material texture: ${texture}. Mood: ${atmosphere}. Lighting: ${lighting}. Decorative arrangement: ${layout}. Detail level: ${density}. ${TEXT_GUIDANCE} Keep the design cohesive and suitable for junk journaling. Avoid illegible blocks of text, extra objects, cropped edges, watermarks, mockups, hands, and shadows that obscure the outline. Intended print size: ${pagesize}. Desired print resolution target: ${resolution}. This is a target only, not a guarantee of actual DPI or pixel dimensions; check the generated image dimensions and upscale if needed before printing.`;
-  showResult(prompt,element,theme,style,atmosphere,layout,pagesize,resolution);
+  if(outputMode==="bundle"){
+    const variations=element==="Gift Tag"||element==="Journal Tags"?[
+      "Variation 1: decorate with holly and red berries, with the main motif centered.",
+      "Variation 2: decorate with an antique ornament and delicate ribbon, distinct from the first design.",
+      "Variation 3: decorate with evergreen sprigs and small bells, distinct from the first two designs."
+    ]:[
+      "Variation 1: use the first distinctive theme-relevant motif.",
+      "Variation 2: use a different theme-relevant motif and arrangement from Prompt 1.",
+      "Variation 3: use a third distinct theme-relevant motif and arrangement."
+    ];
+    const prompts=variations.map((v,i)=>`${prompt} Create ONLY ONE ${element.toLowerCase()} for this prompt, not a set or sheet. ${v} Keep the same theme, art style, palette, texture and overall collection aesthetic across all three prompts, while making each design visibly different. Generate this image separately from the other prompts.`);
+    showBundleResults(prompts,element,theme,style,atmosphere,layout,pagesize,resolution);
+  } else {
+    showResult(prompt,element,theme,style,atmosphere,layout,pagesize,resolution);
+  }
 }
 /* ── SHOW RESULT ── */
+function showBundleResults(prompts,element,theme,style,atmosphere,layout,pagesize,resolution){
+  showResult(prompts[0],element,theme,style,atmosphere,layout,pagesize,resolution);
+  const holder=document.getElementById("bundlePrompts");
+  holder.innerHTML="";
+  prompts.forEach((prompt,index)=>{
+    const card=document.createElement("div"); card.className="bundle-prompt-card";
+    const heading=document.createElement("h4"); heading.textContent=`Prompt ${index+1}`;
+    const body=document.createElement("p"); body.textContent=prompt;
+    const button=document.createElement("button"); button.textContent=`Copy Prompt ${index+1}`;
+    button.onclick=()=>{navigator.clipboard.writeText(prompt).then(()=>{button.textContent="Copied!";}).catch(()=>{const range=document.createRange();range.selectNodeContents(body);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);button.textContent="Select text and copy";});};
+    card.append(heading,body,button); holder.append(card);
+  });
+  document.getElementById("resultPrompt").style.display="none";
+  document.getElementById("copyBtn").style.display="none";
+}
 function showResult(prompt,element,theme,style,atmosphere,layout,pagesize,resolution){
+  const holder=document.getElementById("bundlePrompts"); if(holder) holder.innerHTML="";
+  document.getElementById("resultPrompt").style.display="";
+  document.getElementById("copyBtn").style.display="";
   document.getElementById('kitBar').innerHTML=
     '<div class="kit-bar-info"><strong>'+element+'</strong> &nbsp;·&nbsp; '+theme+' &nbsp;·&nbsp; '+style+
     '<br><span style="font-size:.9rem;color:var(--ink-lt);">'+atmosphere+' &nbsp;·&nbsp; '+layout+'</span></div>'+
