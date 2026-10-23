@@ -464,12 +464,13 @@ body{background:var(--off-white);font-family:'Lato',sans-serif;color:var(--ink);
       <div class="chip" data-value="Greeting Card" data-structural="true" data-canva="Greeting Cards">Greeting Card</div>
     </div>
     <div class="gift-tag-output" id="giftTagOutput">
-      <label for="giftTagMode">Gift tag output</label>
-      <select id="giftTagMode">
-        <option value="single">Single tag — one tag only</option>
-        <option value="bundle">Bundle — 3 coordinated tags</option>
+      <label for="outputMode">Output format</label>
+      <select id="outputMode">
+        <option value="single">Single item</option>
+        <option value="bundle">Bundle / coordinated set</option>
+        <option value="sheet">Full sheet / page</option>
       </select>
-      <p>Choose one tag for an individual design, or a coordinated bundle. AI image tools may still vary in how closely they follow the requested quantity.</p>
+      <p>Choose one item, a coordinated collection, or a full sheet where suitable. Image tools may vary in how closely they follow quantity and layout instructions.</p>
     </div>
 
     <!-- STRUCTURAL NOTICE — shown when a structural element is selected -->
@@ -592,7 +593,14 @@ document.querySelectorAll('#elements .chip').forEach(function(chip){
 
 function updateGiftTagOutput(chip){
   const panel=document.getElementById("giftTagOutput");
-  if(panel) panel.classList.toggle("visible",chip.dataset.value==="Gift Tag");
+  const eligible=["Gift Tag","Journal Tags","Journaling Card","ATC Card","Bookmark","Pocket Insert","Library Card","Greeting Card","Mini Envelopes","Washi Tape Strip","Decorative Border","Fussy Cut Images"];
+  if(panel) panel.classList.toggle("visible",eligible.includes(chip.dataset.value));
+  const select=document.getElementById("outputMode");
+  if(select){
+    const el=chip.dataset.value;
+    select.options[0].textContent=el==="Gift Tag"||el==="Journal Tags"?"Single tag":el==="Washi Tape Strip"?"Single strip":"Single item";
+    select.options[1].textContent=el==="Gift Tag"||el==="Journal Tags"?"Bundle — 3 coordinated tags":el==="Washi Tape Strip"?"Bundle — 3 coordinated strips":"Bundle / coordinated set";
+  }
 }
 
 function updateStructuralNotice(chip){
@@ -654,24 +662,25 @@ function generatePrompt(){
   const pagesize=document.getElementById('pagesize').value;
   const resolution=document.getElementById('resolution').value;
   const element=getElement();
+  const outputMode=document.getElementById("outputMode").value;
 
   const details = {
     "Background Page": `Create a single full-page junk journal background, ${pagesize}. The page itself fills the frame. ${layout} composition with ${density.toLowerCase()}.`,
     "Ephemera Sheet": `Create one printable sheet of 6–9 separate, coordinated junk journal ephemera pieces on a clean white background. Keep every piece fully visible, separated by white space, with no overlap or cropping.`,
     "Sticker Sheet": `Create one printable sticker sheet of 8–12 individual die-cut stickers on a clean white background. Each sticker has a clear white border, is separated from the others, and is fully visible. No sheet-sized background artwork.`,
     "Fussy Cut Images": `Create a printable collection of 6–9 separate fussy-cut illustrations on a plain white background. Give each illustration a clean cutout silhouette and generous spacing. No full-page scene, no overlapping pieces.`,
-    "Journal Tags": `Create 3 coordinated individual journal tags, each approximately 2 × 3 inches, arranged side by side on a plain white background. Each tag has a recognizable tag silhouette and a small hole near the top. Show the complete outlines; do not turn them into a full page.`,
+    "Journal Tags": outputMode==="single" ? `Create exactly 1 individual journal tag, approximately 2 × 3 inches, fully visible on a plain white background, with a recognizable tag silhouette and a small hole near the top. Do not include other tags.` : outputMode==="sheet" ? `Create a printable sheet of 6 coordinated journal tags in a neat grid on a plain white background. Each tag has a recognizable silhouette and small hole near the top, fully visible with clear gaps and no overlap.` : `Create exactly 3 coordinated individual journal tags, each approximately 2 × 3 inches, arranged side by side on a plain white background, fully visible and separated.`,
     "Mini Envelopes": `Show one small, flat mini envelope, approximately 3 × 2.5 inches, viewed directly from above on a plain white background. The envelope silhouette and flap edges must be clearly visible. Apply the chosen theme as surface decoration only; do not show a full journal page or a photograph of a scene.`,
     "Journaling Card": `Create one individual journaling card, approximately 3 × 4 inches, portrait orientation, shown flat and fully in frame on a plain white background. The card has a clear rectangular edge and a balanced decorative border with useful blank writing space.`,
     "Decorative Border": `Create one long, narrow decorative border strip, isolated horizontally on a plain white background. Show the entire strip from end to end, with clean edges and no full-page background.`,
     "Folio Pocket Page": `Create decorative surface artwork intended to be applied to a separately constructed folio pocket. Show a flat rectangular design on a plain white background; do not invent fold lines, tabs, or a full assembled journal.`,
     "ATC Card": `Create one Artist Trading Card design, exactly 2.5 × 3.5 inches in proportion, portrait orientation, with a clearly defined rectangular edge. Show the complete card isolated on a plain white background, not a full page.`,
     "Bookmark": `Create one tall, narrow bookmark, approximately 2 × 7 inches, portrait orientation, fully visible and centered on a plain white background. Keep the silhouette narrow and rectangular, with a small optional hole or ribbon at the top. Do not create a page.`,
-    "Writing Page": `Create one single printable writing page, ${pagesize}, with a clearly defined page edge and generous, uncluttered writing space. Keep decoration restrained around the margins and leave the center open for handwriting.`,
+    "Writing Page": `Create one single printable LINED writing page, ${pagesize}, with a clearly defined page edge and generous writing space. Include evenly spaced, straight, fine but clearly visible horizontal writing lines across the main writing area, with consistent spacing suitable for handwriting. Keep decorations restrained to the margins and corners; never place artwork over the lines. Do not omit the lines and do not include text.`,
     "Pocket Insert": `Create one individual pocket insert card, approximately 3 × 4 inches, portrait orientation, flat and fully visible on a plain white background. It must have a clear card outline and decoration suitable for a small journal insert.`,
     "Washi Tape Strip": `Create one horizontal washi tape strip, long and narrow, with the entire strip visible against a plain white background. Show subtle translucent paper texture and clean, slightly irregular tape edges. No full page or multiple strips.`,
     "Library Card": `Create ONE small vintage library checkout card as an isolated physical paper object, portrait orientation, in a 3:5 aspect ratio (approximately 3 × 5 inches). The card must occupy only about 55–65% of the image canvas, with generous plain white margin visible on every side. Show a single clear rectangular card outline with slightly aged paper edges. On the card itself, include a narrow title strip reading “LIBRARY CARD”, a small “DATE DUE” heading, several short ruled borrower/date lines, and a small rectangular library stamp box. Keep the layout simple and functional, like an old public-library checkout card. The artwork must be confined inside the card boundary. Do NOT create a full-page design, journal page, book cover, open book, sheet of cards, mockup, desk scene, or oversized card filling the canvas. No extra objects.`,
-    "Gift Tag": document.getElementById("giftTagMode").value === "bundle" ? `Create a coordinated bundle of exactly 3 individual gift tags, each sized according to the selected intended print size, fully visible and separated with clear white space on a plain white background. Each tag must have its own recognizable tag silhouette and small string hole at the top. Make the 3 designs visually coordinated but give each a different theme-specific decoration. Do not overlap or crop the tags and do not create a full page.` : `Create exactly 1 individual gift tag, sized according to the selected intended print size, fully visible and centered on a plain white background. Give it a recognizable tag silhouette and a small string hole at the top. No second tag, extra tag, loose objects, or full page.`,
+    "Gift Tag": outputMode==="single" ? `Create exactly 1 individual gift tag, sized according to the selected intended print size, fully visible and centered on a plain white background. Give it a recognizable tag silhouette and a small string hole at the top. No second tag, extra tag, loose objects, or full page.` : outputMode==="sheet" ? `Create a printable sheet of 6 separate gift tags, sized according to the selected intended print size, arranged in a neat grid on a plain white background. Each tag must have its own recognizable silhouette and string hole at the top, fully visible with clear white space and no overlap.` : `Create a coordinated bundle of exactly 3 individual gift tags, each sized according to the selected intended print size, fully visible and separated with clear white space on a plain white background. Each tag must have its own recognizable tag silhouette and small string hole at the top. Make the 3 designs visually coordinated but give each a different theme-specific decoration. Do not overlap or crop the tags and do not create a full page.`,
     "Greeting Card": `Create one folded greeting-card design shown as a flat front-cover artwork panel, with a clear rectangular card boundary on a plain white background. Keep the composition appropriate for a printable card front, not a full scrapbook page.`
   };
 
