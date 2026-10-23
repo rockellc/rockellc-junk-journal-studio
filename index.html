@@ -656,7 +656,28 @@ function generatePrompt(){
   };
 
   const objectPrompt = details[element] || `Create one ${element.toLowerCase()} as a clearly defined, isolated printable object on a plain white background. Show the entire object and its edges; do not turn it into a full-page scene.`;
-  const prompt = `${objectPrompt} Theme: ${theme}. Art style: ${style}. Palette: ${palette}. Paper/material texture: ${texture}. Mood: ${atmosphere}. Lighting: ${lighting}. Decorative arrangement: ${layout}. Detail level: ${density}. Keep the design cohesive and suitable for junk journaling. Avoid illegible blocks of text, extra objects, cropped edges, watermarks, mockups, hands, and shadows that obscure the outline. Intended print size: ${pagesize}. Desired print resolution target: ${resolution}. This is a target only, not a guarantee of actual DPI or pixel dimensions; check the generated image dimensions and upscale if needed before printing.`;
+  const THEME_GUIDANCE = {
+    "Victorian Christmas": "Make the Christmas subject unmistakable: include recognizable Victorian-era Christmas motifs such as holly with red berries, evergreen sprigs, pinecones, antique ornaments, bells, ribbons, wreaths, or a small decorated tree. Use the selected vintage aesthetic to support the Christmas subject, not replace it.",
+    "Vintage Easter": "Make Easter unmistakable with vintage Easter eggs, spring flowers, baby chicks, rabbits, baskets, or delicate Easter motifs.",
+    "Zodiac & Stars": "Make the zodiac theme unmistakable with accurate zodiac constellations or zodiac symbols appropriate to the selected subject; use celestial stars and an astronomical, vintage or mystical treatment.",
+    "Vintage Celestial": "Use clear celestial motifs such as moon phases, stars, constellations, sun and moon illustrations, and antique astronomy details.",
+    "Tarot & Crystal": "Use recognizable tarot-inspired card framing, symbolic illustrations, crystals, and mystical decorative motifs; avoid random pseudo-writing.",
+    "Moon Phases": "Show recognizable sequential moon phases with clear lunar shapes and celestial details.",
+    "Japanese Journey": "Use respectful, recognizable Japanese travel-inspired details such as a torii gate, Japanese garden, cherry blossoms, or a traditional landscape, where appropriate to the selected element.",
+    "French Vintage": "Use French-inspired vintage imagery and decor, but do not switch the language to French. Any readable wording must remain in English.",
+    "Vintage Easter": "Use recognizable Easter imagery and spring motifs rather than generic vintage decoration.",
+    "Autumn Harvest": "Include clear autumn harvest details such as pumpkins, acorns, fallen leaves, apples, wheat, or harvest botanicals.",
+    "Cherry Blossom Spring": "Feature recognizable cherry blossoms, delicate spring branches, and fresh spring details.",
+    "Butterfly Garden": "Feature clearly recognizable butterflies and garden botanicals.",
+    "Bees & Honey": "Feature recognizable bees, honeycomb, honey jars, and flowering plants.",
+    "Woodland Animals": "Feature recognizable woodland animals and forest botanicals.",
+    "Wildflower Meadow": "Feature recognizable wildflowers, meadow grasses, and delicate botanical details.",
+    "Gothic Apothecary": "Feature recognizable antique apothecary bottles, botanical labels, glass jars, and gothic cabinet details.",
+    "Old World Maps": "Feature recognizable antique cartography, compass roses, map borders, and old-world map details.",
+    "Vintage Travel": "Feature recognizable travel ephemera such as old tickets, passport stamps, maps, luggage labels, and postcards."
+  };
+  const themeGuidance = THEME_GUIDANCE[theme] || `Make the selected theme, "${theme}", clearly recognizable through specific subject matter and motifs. Do not rely on the palette, paper texture, or art style alone to communicate the theme.`;
+  const prompt = `${objectPrompt} Theme: ${theme}. Theme-specific subject guidance: ${themeGuidance} Art style: ${style}. Palette: ${palette}. Paper/material texture: ${texture}. Mood: ${atmosphere}. Lighting: ${lighting}. Decorative arrangement: ${layout}. Detail level: ${density}. Language rule: English only for any readable text. Do not include French or other foreign-language wording, random letters, gibberish, pseudo-writing, or misspelled words. If exact wording cannot be rendered clearly, leave the design text-free. Keep the design cohesive and suitable for junk journaling. Avoid illegible blocks of text, extra objects, cropped edges, watermarks, mockups, hands, and shadows that obscure the outline. Intended print size: ${pagesize}. Desired print resolution target: ${resolution}. This is a target only, not a guarantee of actual DPI or pixel dimensions; check the generated image dimensions and upscale if needed before printing.`;
   showResult(prompt,element,theme,style,atmosphere,layout,pagesize,resolution);
 }
 /* ── SHOW RESULT ── */
